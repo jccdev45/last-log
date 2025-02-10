@@ -4,17 +4,27 @@ local pluginName = "last-log"
 local cooldownTime = 10  -- seconds
 local lastExecution = {} -- User-specific cooldown
 
-local function extractLastMessage(jsonString)
-  local lastMessage = nil
+local function extractLastMessageAndTime(jsonString)
+  local messages = {}
   for message in string.gmatch(jsonString, '"text":"([^"]*)"') do
-    lastMessage = message
+    table.insert(messages, message)
   end
 
-  if lastMessage then
-    return lastMessage
-  else
-    return "No messages found or error occurred"
+  local timestamps = {}
+  for timestamp in string.gmatch(jsonString, '"timestamp":"([^"]*)"') do
+    table.insert(timestamps, timestamp)
   end
+
+  if #messages > 0 and #timestamps > 0 then
+    return messages[#messages], timestamps[#timestamps]
+  else
+    return nil, nil
+  end
+end
+
+local function formatTimestamp(timestamp)
+  local year, month, day, hour, min, sec = timestamp:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
+  return string.format("(%s-%s-%s %s:%s)", year, month, day, hour, min)
 end
 
 local function fetchLastLog(ctx)
@@ -40,9 +50,16 @@ local function fetchLastLog(ctx)
   request:set_timeout(5000)
   request:on_success(function(res)
     local data = res:data()
-    local message = extractLastMessage(data)
-    local formattedMessage = string.format("%s's last message in %s: %s", user, channel, message)
-    ctx.channel:add_system_message(formattedMessage)
+    c2.log(c2.LogLevel.Info, "Raw API response (first 1000 chars): " .. data:sub(1, 1000))
+
+    local message, timestamp = extractLastMessageAndTime(data)
+    if message and timestamp then
+      local formattedTime = formatTimestamp(timestamp)
+      local formattedMessage = string.format("%s %s (%s): %s", user, formattedTime, channel, message)
+      ctx.channel:add_system_message(formattedMessage)
+    else
+      ctx.channel:add_system_message("No messages found for " .. user .. " in " .. channel)
+    end
   end)
   request:on_error(function(res)
     ctx.channel:add_system_message("Error fetching logs: " .. res:error())
