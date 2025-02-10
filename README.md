@@ -23,7 +23,7 @@ Chatterino v2.5.2 or later (a version that has plugin support). You can find the
 - Ensure your version of Chatterino has plugin support (as of v2.5.2) *(Note that plugins are currently in alpha and are subject to change)*
 - Either clone this repo or download the plugin files directly
 - If direct download, create a folder named `last-log` (can be whatever) in `<username>/AppData/Roaming/Chatterino2/Plugins`
-- Place [init.lua](https://github.com/jccdev45/last-log/blob/master/init.lua), [info.json](https://github.com/jccdev45/last-log/blob/master/info.json) inside the new folder
+- Place [init.lua](https://github.com/jccdev45/last-log/blob/master/init.lua), [info.json](https://github.com/jccdev45/last-log/blob/master/info.json) inside the new folder. Look for download button on each page.
 - Click `Enable` on the plugin in Chatterino Settings -> Plugins
 
 ## Troubleshooting<a name = "troubleshooting"></a>
